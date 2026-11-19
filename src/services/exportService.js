@@ -54,17 +54,23 @@ export const exportService = {
     // 2. Member contributions
     lines.push([`DANH SÁCH ĐÓNG GÓP QUỸ THÀNH VIÊN`].map(escapeCsvCell).join(','));
     lines.push([`STT`, `Họ và tên`, `Số tiền nộp (VNĐ)`, `Trạng thái đóng`, `Ghi chú đóng tiền`].map(escapeCsvCell).join(','));
+    let totalContributed = 0;
     members.forEach((m, idx) => {
       const paid = typeof m.paidAmount === 'number' ? m.paidAmount : (m.contributionAmount || 0);
+      totalContributed += Number(paid) || 0;
       const statusLabel = m.paymentStatus === 'paid' ? 'Đã đóng' : m.paymentStatus === 'partial' ? 'Đóng một phần' : 'Chưa đóng';
       lines.push([idx + 1, m.name, paid, statusLabel, m.paymentNote || ''].map(escapeCsvCell).join(','));
     });
+    // Total contributions row
+    lines.push([`Tổng cộng thu quỹ:`, ``, totalContributed, `${summary.paidMembersCount}/${summary.memberCount} thành viên đã nộp`, ``].map(escapeCsvCell).join(','));
     lines.push([]);
 
     // 3. Expenses
     lines.push([`BẢNG CHI TIÊU CHUNG CỦA ĐOÀN`].map(escapeCsvCell).join(','));
     lines.push([`STT`, `Ngày`, `Nội dung khoản chi`, `Người thanh toán`, `Số tiền (VNĐ)`, `Ghi chú`].map(escapeCsvCell).join(','));
+    let totalExpensesSum = 0;
     expenses.forEach((e, idx) => {
+      totalExpensesSum += Number(e.amount) || 0;
       lines.push([
         idx + 1,
         formatDate(e.date),
@@ -74,12 +80,22 @@ export const exportService = {
         e.note || ''
       ].map(escapeCsvCell).join(','));
     });
+    // TOTAL EXPENSES ROW (Tổng chi tiêu thực tế đoàn)
+    lines.push([`Tổng cộng chi tiêu (Tổng chi):`, ``, `Tổng số ${expenses.length} khoản chi`, group.representative || 'Quỹ chung', totalExpensesSum, ``].map(escapeCsvCell).join(','));
     lines.push([]);
 
     // 4. Refunds & Final Settlement
     lines.push([`BẢNG QUYẾT TOÁN VÀ HOÀN TIỀN THỪA`].map(escapeCsvCell).join(','));
     lines.push([`STT`, `Họ và tên`, `Đã đóng (VNĐ)`, `Chi phí thực tế (VNĐ)`, `Số tiền hoàn trả (VNĐ)`, `Cần đóng thêm (VNĐ)`, `Trạng thái hoàn tiền`, `Tài khoản nhận tiền`, `Ghi chú (Note)`].map(escapeCsvCell).join(','));
+    let sumPaid = 0;
+    let sumCost = 0;
+    let sumRefunds = 0;
+    let sumDeficits = 0;
     refunds.forEach((r, idx) => {
+      sumPaid += Number(r.paidAmount) || 0;
+      sumCost += Number(r.allocatedCost) || 0;
+      sumRefunds += Number(r.refundAmount) || 0;
+      sumDeficits += Number(r.deficitAmount) || 0;
       lines.push([
         idx + 1,
         r.memberName,
@@ -92,6 +108,8 @@ export const exportService = {
         r.refundNote || r.paymentNote || ''
       ].map(escapeCsvCell).join(','));
     });
+    // Total settlement & refund row
+    lines.push([`Tổng cộng quyết toán:`, ``, sumPaid, sumCost, `+${sumRefunds}`, sumDeficits > 0 ? `-${sumDeficits}` : 0, `Đã cân bằng 100%`, ``, ``].map(escapeCsvCell).join(','));
     lines.push([]);
 
     // 5. Treasurer info
@@ -111,9 +129,20 @@ export const exportService = {
   },
 
   /**
-   * Export all expenses of the group to CSV
+   * Export all expenses of the group to CSV with clear Total Expenses (Tổng chi) row
    */
-  exportExpensesCSV(group, members, expenses) {
+  exportExpensesCSV(group, members, expenses = []) {
+    const totalExpenses = expenses.reduce((sum, exp) => sum + (Number(exp.amount) || 0), 0);
+    const lines = [];
+
+    // Header Summary Block
+    lines.push([`BẢNG KÊ CHI TIÊU CHI TIẾT - ${group?.name || 'CHUYẾN ĐI'}`].map(escapeCsvCell).join(','));
+    lines.push([`Chuyến đi / Nhóm:`, group?.name || '', `Địa điểm:`, group?.location || ''].map(escapeCsvCell).join(','));
+    lines.push([`Thời gian:`, group?.duration || `${group?.startDate || ''} - ${group?.endDate || ''}`, `Người đại diện:`, group?.representative || 'Đại diện nhóm'].map(escapeCsvCell).join(','));
+    lines.push([`TỔNG CHI TIÊU (TỔNG CHI):`, `${totalExpenses} VNĐ`, `Tổng số khoản chi:`, `${expenses.length} khoản`].map(escapeCsvCell).join(','));
+    lines.push([]);
+
+    // Table Columns
     const headers = [
       'STT',
       'Ngày',
@@ -122,19 +151,31 @@ export const exportService = {
       'Số tiền (VNĐ)',
       'Ghi chú'
     ];
+    lines.push(headers.map(escapeCsvCell).join(','));
 
-    const rows = expenses.map((exp, idx) => {
-      return [
+    // Expense Rows
+    expenses.forEach((exp, idx) => {
+      lines.push([
         idx + 1,
         formatDate(exp.date),
         exp.description || exp.title || '',
-        exp.representative || group.representative || 'Đại diện nhóm',
+        exp.representative || group?.representative || 'Đại diện nhóm',
         exp.amount,
         exp.note || ''
-      ].map(escapeCsvCell).join(',');
+      ].map(escapeCsvCell).join(','));
     });
 
-    const csv = [headers.map(escapeCsvCell).join(','), ...rows].join('\r\n');
+    // Total Expenses Row (Tổng chi)
+    lines.push([
+      'Tổng cộng chi tiêu (Tổng chi)',
+      '',
+      `Tổng số ${expenses.length} khoản chi`,
+      group?.representative || 'Quỹ chung',
+      totalExpenses,
+      `Tổng chi: ${totalExpenses} VNĐ`
+    ].map(escapeCsvCell).join(','));
+
+    const csv = lines.map(l => Array.isArray(l) ? l.join(',') : l).join('\r\n');
     const safeName = (group?.name || 'chi-tieu').toLowerCase().replace(/[^a-z0-9]/g, '-');
     triggerCsvDownload(csv, `danh-sach-chi-tieu-${safeName}.csv`);
   },
@@ -144,6 +185,14 @@ export const exportService = {
    */
   exportMembersSummaryCSV(group, members, expenses, settlements) {
     const stats = calculateMemberStatistics(members, expenses, settlements);
+    const totalExpenses = (expenses || []).reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
+    const lines = [];
+
+    // Header Summary Block
+    lines.push([`BÁO CÁO TỔNG HỢP THÀNH VIÊN & SỐ DƯ - ${group?.name || 'CHUYẾN ĐI'}`].map(escapeCsvCell).join(','));
+    lines.push([`Chuyến đi / Nhóm:`, group?.name || '', `Địa điểm:`, group?.location || ''].map(escapeCsvCell).join(','));
+    lines.push([`Tổng chi tiêu toàn đoàn:`, `${totalExpenses} VNĐ`, `Tổng số thành viên:`, `${members.length} người`].map(escapeCsvCell).join(','));
+    lines.push([]);
 
     const headers = [
       'Thành viên',
@@ -155,10 +204,23 @@ export const exportService = {
       'Số dư ròng (VNĐ)',
       'Trạng thái'
     ];
+    lines.push(headers.map(escapeCsvCell).join(','));
 
-    const rows = stats.map(st => {
+    let totalPaid = 0;
+    let totalShare = 0;
+    let totalSettlementPaid = 0;
+    let totalSettlementReceived = 0;
+    let totalBalance = 0;
+
+    stats.forEach(st => {
+      totalPaid += Number(st.paid) || 0;
+      totalShare += Number(st.share) || 0;
+      totalSettlementPaid += Number(st.settlementPaid) || 0;
+      totalSettlementReceived += Number(st.settlementReceived) || 0;
+      totalBalance += Number(st.balance) || 0;
+
       const statusText = st.balance > 0 ? 'Cần nhận lại' : st.balance < 0 ? 'Cần trả' : 'Đã tất toán';
-      return [
+      lines.push([
         st.name,
         st.nickname || '',
         st.paid,
@@ -167,10 +229,22 @@ export const exportService = {
         st.settlementReceived,
         st.balance,
         statusText
-      ].map(escapeCsvCell).join(',');
+      ].map(escapeCsvCell).join(','));
     });
 
-    const csv = [headers.map(escapeCsvCell).join(','), ...rows].join('\r\n');
+    // Total Summary Row
+    lines.push([
+      'Tổng cộng (Toàn đoàn)',
+      `${stats.length} thành viên`,
+      totalPaid,
+      totalShare,
+      totalSettlementPaid,
+      totalSettlementReceived,
+      totalBalance,
+      'Cân đối 100%'
+    ].map(escapeCsvCell).join(','));
+
+    const csv = lines.map(l => Array.isArray(l) ? l.join(',') : l).join('\r\n');
     const safeName = (group?.name || 'thanh-vien').toLowerCase().replace(/[^a-z0-9]/g, '-');
     triggerCsvDownload(csv, `tong-hop-thanh-vien-${safeName}.csv`);
   },
@@ -180,6 +254,12 @@ export const exportService = {
    */
   exportSettlementsCSV(group, members, settlements) {
     const memberMap = new Map(members.map(m => [m.id, m.nickname || m.name]));
+    const lines = [];
+
+    lines.push([`LỊCH SỬ THANH TOÁN & QUYẾT TOÁN NỢ - ${group?.name || 'CHUYẾN ĐI'}`].map(escapeCsvCell).join(','));
+    lines.push([`Chuyến đi / Nhóm:`, group?.name || '', `Địa điểm:`, group?.location || ''].map(escapeCsvCell).join(','));
+    lines.push([]);
+
     const headers = [
       'STT',
       'Ngày',
@@ -189,11 +269,14 @@ export const exportService = {
       'Hình thức',
       'Ghi chú'
     ];
+    lines.push(headers.map(escapeCsvCell).join(','));
 
-    const rows = settlements.map((s, idx) => {
+    let totalSettlementAmount = 0;
+    settlements.forEach((s, idx) => {
+      totalSettlementAmount += Number(s.amount) || 0;
       const fromName = memberMap.get(s.fromMemberId) || s.fromMemberId;
       const toName = memberMap.get(s.toMemberId) || s.toMemberId;
-      return [
+      lines.push([
         idx + 1,
         formatDate(s.date),
         fromName,
@@ -201,10 +284,21 @@ export const exportService = {
         s.amount,
         s.paymentMethod === 'bank_transfer' ? 'Chuyển khoản' : 'Tiền mặt',
         s.note || ''
-      ].map(escapeCsvCell).join(',');
+      ].map(escapeCsvCell).join(','));
     });
 
-    const csv = [headers.map(escapeCsvCell).join(','), ...rows].join('\r\n');
+    // Total Settlement Row
+    lines.push([
+      'Tổng cộng đã thanh toán',
+      '',
+      `Tổng số ${settlements.length} giao dịch`,
+      '',
+      totalSettlementAmount,
+      '',
+      `Tổng tiền đã chuyển: ${totalSettlementAmount} VNĐ`
+    ].map(escapeCsvCell).join(','));
+
+    const csv = lines.map(l => Array.isArray(l) ? l.join(',') : l).join('\r\n');
     const safeName = (group?.name || 'quyet-toan-no').toLowerCase().replace(/[^a-z0-9]/g, '-');
     triggerCsvDownload(csv, `lich-su-quyet-toan-${safeName}.csv`);
   }

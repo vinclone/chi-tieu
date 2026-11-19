@@ -197,10 +197,10 @@ export default function PrintableSettlementReport({
             <div className="p-3 bg-slate-50 border border-slate-200 rounded mb-6 text-[11px]">
               <span className="font-bold text-slate-900 block mb-1">THÔNG TIN TÀI KHOẢN THỦ QUỸ HOÀN TRẢ:</span>
               <div className="grid grid-cols-2 gap-2 font-mono">
-                <div>Thủ quỹ: <strong>{treasurer.name || group.representative}</strong> (SĐT: {treasurer.phone || '0987.654.321'})</div>
-                <div>Ngân hàng: <strong>{treasurer.bankName || 'Vietcombank'}</strong> — STK: <strong>{treasurer.accountNumber || '1012345678'}</strong></div>
-                <div>Chủ TK: <strong>{treasurer.accountHolder || treasurer.name}</strong></div>
-                <div>Hạn hoàn tiền: <strong>{treasurer.refundDeadline || '25/11/2026'}</strong></div>
+                <div>Thủ quỹ: <strong>{treasurer.name || group.representative || 'Chưa cập nhật'}</strong> {treasurer.phone ? `(SĐT: ${treasurer.phone})` : ''}</div>
+                <div>Ngân hàng: <strong>{treasurer.bankName || 'Chưa cập nhật'}</strong> — STK: <strong>{treasurer.accountNumber || 'Chưa cập nhật'}</strong></div>
+                <div>Chủ TK: <strong>{treasurer.accountHolder || treasurer.name || group.representative || 'Chưa cập nhật'}</strong></div>
+                <div>Hạn hoàn tiền: <strong>{treasurer.refundDeadline || 'Theo thỏa thuận nhóm'}</strong></div>
               </div>
             </div>
 
