@@ -8,10 +8,13 @@ import {
   RefreshCw, 
   Edit3, 
   FolderSync, 
-  Clock 
+  Clock,
+  Download,
+  Database
 } from 'lucide-react';
 import { formatDate } from '../../utils/date.js';
 import { exportService } from '../../services/exportService.js';
+import { useApp } from '../../context/AppContext.jsx';
 import { useToast } from '../../context/ToastContext.jsx';
 
 export default function GroupInfoBar({ 
@@ -26,6 +29,7 @@ export default function GroupInfoBar({
   onTriggerPrint
 }) {
   const { showToast } = useToast();
+  const { exportJSONBackup } = useApp();
 
   const handleExportCSV = () => {
     try {
@@ -34,6 +38,16 @@ export default function GroupInfoBar({
     } catch (e) {
       console.error(e);
       showToast('Có lỗi xảy ra khi xuất file Excel: ' + e.message, 'error');
+    }
+  };
+
+  const handleDownloadBackup = () => {
+    try {
+      exportJSONBackup();
+      showToast('Đã tải tệp sao lưu dữ liệu (.JSON) về máy tính thành công!');
+    } catch (e) {
+      console.error(e);
+      showToast('Lỗi khi tải tệp sao lưu JSON', 'error');
     }
   };
 
@@ -109,6 +123,16 @@ export default function GroupInfoBar({
           >
             <FileSpreadsheet className="w-3.5 h-3.5" />
             <span>Xuất Excel</span>
+          </button>
+
+          <button
+            onClick={handleDownloadBackup}
+            type="button"
+            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-indigo-50 hover:bg-indigo-100 active:bg-indigo-200 text-indigo-700 text-xs font-semibold rounded-xl min-h-[38px] transition-colors"
+            title="Lưu tệp sao lưu dữ liệu (.JSON) về máy tính của bạn"
+          >
+            <Download className="w-3.5 h-3.5" />
+            <span>Sao lưu JSON</span>
           </button>
 
           <button

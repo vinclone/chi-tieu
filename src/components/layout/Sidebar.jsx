@@ -89,9 +89,12 @@ export default function Sidebar() {
       </nav>
 
       {/* Bottom Info footer */}
-      <div className="p-4 border-t border-slate-100 text-[11px] text-slate-400">
-        <p className="font-medium text-slate-600">Mô hình Quỹ Đoàn</p>
-        <p>Thu quỹ → Chi trả → Hoàn tiền</p>
+      <div className="p-4 border-t border-slate-100 text-[11px] text-slate-500 space-y-1">
+        <div className="flex items-center gap-1.5 font-semibold text-emerald-700">
+          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span>Tự động lưu LocalStorage</span>
+        </div>
+        <p className="text-slate-400 text-[10px]">Dữ liệu được lưu an toàn trên máy bạn</p>
       </div>
     </aside>
   );

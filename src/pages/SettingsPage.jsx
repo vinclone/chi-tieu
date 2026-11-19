@@ -250,6 +250,18 @@ export default function SettingsPage() {
                 />
               </label>
             </div>
+
+            <div className="pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+              <span className="text-slate-500">Mẫu chuyến đi dã ngoại có sẵn:</span>
+              <a
+                href="./data/mau_chuyen_di_ba_vi.json"
+                download="mau_chuyen_di_ba_vi.json"
+                className="inline-flex items-center gap-1.5 font-bold text-emerald-700 hover:text-emerald-800 underline"
+              >
+                <Download className="w-3.5 h-3.5" />
+                <span>Tải mẫu Ba Vì (.JSON)</span>
+              </a>
+            </div>
             <p className="text-[11px] text-slate-400">
               * Dữ liệu được lưu trữ tự động trong trình duyệt của bạn (LocalStorage) và không cần kết nối internet.
             </p>

@@ -6,8 +6,8 @@
 import { INITIAL_DATA, DEMO_DATA } from './seedData.js';
 import { validateImportedData } from '../utils/validators.js';
 
-const STORAGE_KEY = 'group_fund_manager_v2';
-const LEGACY_KEY = 'group_expense_manager_v1';
+const STORAGE_KEY = 'group_fund_manager_v3';
+const LEGACY_KEY = 'group_fund_manager_v2';
 
 export const storageService = {
   /**
