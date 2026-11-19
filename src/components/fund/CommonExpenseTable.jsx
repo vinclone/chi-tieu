@@ -44,8 +44,12 @@ export default function CommonExpenseTable({
   const [newDate, setNewDate] = useState(getTodayString());
   const [newTitle, setNewTitle] = useState('');
   const [newAmount, setNewAmount] = useState('');
-  const [newRepresentative, setNewRepresentative] = useState(representative || 'Nguyễn Văn An');
+  const [newRepresentative, setNewRepresentative] = useState(representative || 'Trưởng nhóm');
   const [newNote, setNewNote] = useState('');
+
+  React.useEffect(() => {
+    if (representative) setNewRepresentative(representative);
+  }, [representative]);
 
   const titleInputRef = useRef(null);
 

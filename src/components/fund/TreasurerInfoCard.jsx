@@ -24,13 +24,25 @@ export default function TreasurerInfoCard({
   const [isEditing, setIsEditing] = useState(false);
   const [copied, setCopied] = useState(false);
 
-  const [name, setName] = useState(treasurer.name || group.representative || 'Nguyễn Văn An');
-  const [phone, setPhone] = useState(treasurer.phone || '0987.654.321');
-  const [bankName, setBankName] = useState(treasurer.bankName || 'Vietcombank');
-  const [accountNumber, setAccountNumber] = useState(treasurer.accountNumber || '1012345678');
-  const [accountHolder, setAccountHolder] = useState(treasurer.accountHolder || 'NGUYEN VAN AN');
-  const [refundDeadline, setRefundDeadline] = useState(treasurer.refundDeadline || '25/11/2026');
-  const [note, setNote] = useState(treasurer.note || 'Thủ quỹ chịu trách nhiệm chi trả và hoàn lại số dư sau chuyến đi.');
+  const [name, setName] = useState(treasurer.name || group.representative || '');
+  const [phone, setPhone] = useState(treasurer.phone || '');
+  const [bankName, setBankName] = useState(treasurer.bankName || '');
+  const [accountNumber, setAccountNumber] = useState(treasurer.accountNumber || '');
+  const [accountHolder, setAccountHolder] = useState(treasurer.accountHolder || '');
+  const [refundDeadline, setRefundDeadline] = useState(treasurer.refundDeadline || '');
+  const [note, setNote] = useState(treasurer.note || '');
+
+  // Keep state updated when group changes
+  React.useEffect(() => {
+    const t = group.treasurerInfo || {};
+    setName(t.name || group.representative || '');
+    setPhone(t.phone || '');
+    setBankName(t.bankName || '');
+    setAccountNumber(t.accountNumber || '');
+    setAccountHolder(t.accountHolder || '');
+    setRefundDeadline(t.refundDeadline || '');
+    setNote(t.note || '');
+  }, [group]);
 
   const handleCopyAccount = () => {
     if (!accountNumber) return;
@@ -56,13 +68,14 @@ export default function TreasurerInfoCard({
   };
 
   const handleCancel = () => {
-    setName(treasurer.name || group.representative || 'Nguyễn Văn An');
-    setPhone(treasurer.phone || '0987.654.321');
-    setBankName(treasurer.bankName || 'Vietcombank');
-    setAccountNumber(treasurer.accountNumber || '1012345678');
-    setAccountHolder(treasurer.accountHolder || 'NGUYEN VAN AN');
-    setRefundDeadline(treasurer.refundDeadline || '25/11/2026');
-    setNote(treasurer.note || '');
+    const t = group.treasurerInfo || {};
+    setName(t.name || group.representative || '');
+    setPhone(t.phone || '');
+    setBankName(t.bankName || '');
+    setAccountNumber(t.accountNumber || '');
+    setAccountHolder(t.accountHolder || '');
+    setRefundDeadline(t.refundDeadline || '');
+    setNote(t.note || '');
     setIsEditing(false);
   };
 

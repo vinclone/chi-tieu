@@ -18,7 +18,7 @@ export default function FinancialOverviewCards({ fundSummary, group }) {
 
   const collectionRate = totalExpectedFund > 0 
     ? Math.min(100, Math.round((totalCollected / totalExpectedFund) * 100)) 
-    : 100;
+    : 0;
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -136,7 +136,7 @@ export default function FinancialOverviewCards({ fundSummary, group }) {
             )}
           </div>
           <div className="font-medium text-xs">
-            {remainingFund > 0 ? 'Sẵn sàng quyết toán' : 'Cần bổ sung quỹ'}
+            {remainingFund > 0 ? 'Sẵn sàng quyết toán' : remainingFund === 0 ? 'Chưa phát sinh chi' : 'Cần bổ sung quỹ'}
           </div>
         </div>
       </div>

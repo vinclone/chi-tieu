@@ -22,9 +22,15 @@ export default function MemberContributionTable({
   
   // New inline row state
   const [newName, setNewName] = useState('');
-  const [newAmount, setNewAmount] = useState(plannedContribution ? String(plannedContribution) : '450000');
+  const [newAmount, setNewAmount] = useState(plannedContribution ? String(plannedContribution) : '');
   const [newStatus, setNewStatus] = useState('paid');
   const [newNote, setNewNote] = useState('');
+
+  React.useEffect(() => {
+    if (plannedContribution) {
+      setNewAmount(String(plannedContribution));
+    }
+  }, [plannedContribution]);
 
   const nameInputRef = useRef(null);
 
