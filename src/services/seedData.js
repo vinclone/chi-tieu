@@ -1,0 +1,376 @@
+/**
+ * Group Expense & Fund Management System Seed Data
+ * Reference: Google Sheets Group Fund Workflow
+ * 
+ * 9 members, 450.000đ contribution per person (4.050.000đ collected)
+ * 9 expenses (3.600.000đ total)
+ * Remaining fund: 450.000đ
+ * Refund per member: 50.000đ
+ */
+
+export const INITIAL_DATA = {
+  version: 2,
+  activeGroupId: "group_trip_default",
+  groups: [
+    {
+      id: "group_trip_default",
+      name: "Chuyến đi mới",
+      tripName: "Chuyến đi dã ngoại mới",
+      location: "",
+      startDate: "",
+      endDate: "",
+      duration: "1 ngày",
+      representative: "Trưởng nhóm",
+      plannedContribution: 0,
+      description: "Chuyến đi mới chưa có chi phí.",
+      treasurerInfo: {
+        name: "",
+        phone: "",
+        bankName: "",
+        accountNumber: "",
+        accountHolder: "",
+        refundDeadline: "",
+        note: ""
+      },
+      createdAt: "2026-11-20T00:00:00.000Z"
+    }
+  ],
+  members: [],
+  expenses: [],
+  settlements: []
+};
+
+export const DEMO_DATA = {
+  version: 2,
+  activeGroupId: "group_weekend_trip",
+  groups: [
+    {
+      id: "group_weekend_trip",
+      name: "Chuyến đi Dã ngoại Cuối tuần",
+      tripName: "Dã ngoại cắm trại Vườn Quốc Gia Ba Vì",
+      location: "Ba Vì, Hà Nội",
+      startDate: "2026-11-20",
+      endDate: "2026-11-21",
+      duration: "2 ngày 1 đêm",
+      representative: "Nguyễn Văn An",
+      plannedContribution: 450000,
+      description: "Quản lý thu chi và quỹ chung chuyến dã ngoại cắm trại cuối tuần của nhóm 9 người.",
+      treasurerInfo: {
+        name: "Nguyễn Văn An",
+        phone: "0987.654.321",
+        bankName: "Vietcombank (VCB)",
+        accountNumber: "1012345678",
+        accountHolder: "NGUYEN VAN AN",
+        refundDeadline: "25/11/2026",
+        note: "Mọi người xác nhận lại số tài khoản để thủ quỹ hoàn trả tiền thừa nhé!"
+      },
+      createdAt: "2026-11-19T08:00:00.000Z"
+    },
+    {
+      id: "group_dalat_2026",
+      name: "Du lịch Đà Lạt Mộng Mơ",
+      tripName: "Nghỉ mát Đà Lạt 3N2Đ",
+      location: "Đà Lạt, Lâm Đồng",
+      startDate: "2026-12-05",
+      endDate: "2026-12-07",
+      duration: "3 ngày 2 đêm",
+      representative: "Trần Hoàng Vinh",
+      plannedContribution: 1500000,
+      description: "Chuyến đi săn mây và thưởng thức ẩm thực Đà Lạt",
+      treasurerInfo: {
+        name: "Trần Hoàng Vinh",
+        phone: "0912.345.678",
+        bankName: "Techcombank (TCB)",
+        accountNumber: "190345678910",
+        accountHolder: "TRAN HOANG VINH",
+        refundDeadline: "10/12/2026",
+        note: "Chuyển khoản ghi rõ: [Tên] - Hoan tien Da Lat"
+      },
+      createdAt: "2026-11-19T09:00:00.000Z"
+    }
+  ],
+  members: [
+    {
+      id: "mem_an",
+      groupId: "group_weekend_trip",
+      name: "Nguyễn Văn An",
+      nickname: "An",
+      phone: "0987.654.321",
+      bankName: "Vietcombank",
+      bankAccount: "1012345678",
+      contributionAmount: 450000,
+      paidAmount: 450000,
+      paymentStatus: "paid",
+      paymentNote: "Thủ quỹ giữ tiền mặt & tài khoản",
+      refundStatus: "completed",
+      isRepresentative: true,
+      createdAt: "2026-11-19T08:05:00.000Z"
+    },
+    {
+      id: "mem_vinh",
+      groupId: "group_weekend_trip",
+      name: "Trần Hoàng Vinh",
+      nickname: "Vinh",
+      phone: "0901.234.567",
+      bankName: "Techcombank",
+      bankAccount: "190345678910",
+      contributionAmount: 450000,
+      paidAmount: 450000,
+      paymentStatus: "paid",
+      paymentNote: "Chuyển khoản VCB 20/11",
+      refundStatus: "pending",
+      isRepresentative: false,
+      createdAt: "2026-11-19T08:05:00.000Z"
+    },
+    {
+      id: "mem_bich",
+      groupId: "group_weekend_trip",
+      name: "Lê Ngọc Bích",
+      nickname: "Bích",
+      phone: "0902.345.678",
+      bankName: "MB Bank",
+      bankAccount: "090234567899",
+      contributionAmount: 450000,
+      paidAmount: 450000,
+      paymentStatus: "paid",
+      paymentNote: "Chuyển khoản VCB 20/11",
+      refundStatus: "pending",
+      isRepresentative: false,
+      createdAt: "2026-11-19T08:05:00.000Z"
+    },
+    {
+      id: "mem_cuong",
+      groupId: "group_weekend_trip",
+      name: "Phạm Mạnh Cường",
+      nickname: "Cường",
+      phone: "0903.456.789",
+      bankName: "VPBank",
+      bankAccount: "1234567890",
+      contributionAmount: 450000,
+      paidAmount: 450000,
+      paymentStatus: "paid",
+      paymentNote: "Đưa tiền mặt lúc lên xe",
+      refundStatus: "pending",
+      isRepresentative: false,
+      createdAt: "2026-11-19T08:05:00.000Z"
+    },
+    {
+      id: "mem_binh",
+      groupId: "group_weekend_trip",
+      name: "Đặng Thanh Bình",
+      nickname: "Bình",
+      phone: "0904.567.890",
+      bankName: "ACB",
+      bankAccount: "7890123456",
+      contributionAmount: 450000,
+      paidAmount: 450000,
+      paymentStatus: "paid",
+      paymentNote: "Chuyển khoản VCB 20/11",
+      refundStatus: "pending",
+      isRepresentative: false,
+      createdAt: "2026-11-19T08:05:00.000Z"
+    },
+    {
+      id: "mem_dung",
+      groupId: "group_weekend_trip",
+      name: "Vũ Tiến Dũng",
+      nickname: "Dũng",
+      phone: "0905.678.901",
+      bankName: "TPBank",
+      bankAccount: "03456789012",
+      contributionAmount: 450000,
+      paidAmount: 450000,
+      paymentStatus: "paid",
+      paymentNote: "Chuyển khoản VCB 20/11",
+      refundStatus: "pending",
+      isRepresentative: false,
+      createdAt: "2026-11-19T08:05:00.000Z"
+    },
+    {
+      id: "mem_hoa",
+      groupId: "group_weekend_trip",
+      name: "Hoàng Quỳnh Hoa",
+      nickname: "Hoa",
+      phone: "0906.789.012",
+      bankName: "BIDV",
+      bankAccount: "21510001234567",
+      contributionAmount: 450000,
+      paidAmount: 450000,
+      paymentStatus: "paid",
+      paymentNote: "Chuyển khoản VCB 20/11",
+      refundStatus: "pending",
+      isRepresentative: false,
+      createdAt: "2026-11-19T08:05:00.000Z"
+    },
+    {
+      id: "mem_mai",
+      groupId: "group_weekend_trip",
+      name: "Trương Tuyết Mai",
+      nickname: "Mai",
+      phone: "0907.890.123",
+      bankName: "VietinBank",
+      bankAccount: "109876543210",
+      contributionAmount: 450000,
+      paidAmount: 450000,
+      paymentStatus: "paid",
+      paymentNote: "Chuyển khoản VCB 20/11",
+      refundStatus: "pending",
+      isRepresentative: false,
+      createdAt: "2026-11-19T08:05:00.000Z"
+    },
+    {
+      id: "mem_nam",
+      groupId: "group_weekend_trip",
+      name: "Đỗ Thành Nam",
+      nickname: "Nam",
+      phone: "0908.901.234",
+      bankName: "Vietcombank",
+      bankAccount: "0071001234567",
+      contributionAmount: 450000,
+      paidAmount: 450000,
+      paymentStatus: "paid",
+      paymentNote: "Đưa tiền mặt khi cắm trại",
+      refundStatus: "pending",
+      isRepresentative: false,
+      createdAt: "2026-11-19T08:05:00.000Z"
+    },
+    // Da Lat sample members
+    {
+      id: "mem_dl_1",
+      groupId: "group_dalat_2026",
+      name: "Trần Hoàng Vinh",
+      nickname: "Vinh",
+      phone: "0912.345.678",
+      contributionAmount: 1500000,
+      paidAmount: 1500000,
+      paymentStatus: "paid",
+      paymentNote: "Trưởng đoàn",
+      refundStatus: "pending",
+      createdAt: "2026-11-19T09:05:00.000Z"
+    },
+    {
+      id: "mem_dl_2",
+      groupId: "group_dalat_2026",
+      name: "Nguyễn Văn An",
+      nickname: "An",
+      phone: "0987.654.321",
+      contributionAmount: 1500000,
+      paidAmount: 1500000,
+      paymentStatus: "paid",
+      paymentNote: "Đã chuyển khoản",
+      refundStatus: "pending",
+      createdAt: "2026-11-19T09:05:00.000Z"
+    }
+  ],
+  expenses: [
+    {
+      id: "exp_1",
+      groupId: "group_weekend_trip",
+      date: "2026-11-20",
+      title: "Thuê xe 16 chỗ đưa đón khứ hồi",
+      description: "Thuê xe 16 chỗ đưa đón khứ hồi",
+      amount: 1350000,
+      representative: "Nguyễn Văn An",
+      category: "transport",
+      note: "Nhà xe Tuấn Anh, đã thanh toán đủ",
+      createdAt: "2026-11-20T07:30:00.000Z"
+    },
+    {
+      id: "exp_2",
+      groupId: "group_weekend_trip",
+      date: "2026-11-20",
+      title: "Vé tham quan khu sinh thái & cổng rừng",
+      description: "Vé tham quan khu sinh thái & cổng rừng",
+      amount: 450000,
+      representative: "Nguyễn Văn An",
+      category: "entertainment",
+      note: "50.000đ/vé x 9 người",
+      createdAt: "2026-11-20T09:15:00.000Z"
+    },
+    {
+      id: "exp_3",
+      groupId: "group_weekend_trip",
+      date: "2026-11-20",
+      title: "Ăn trưa ngày 1 cơm niêu & rau rừng",
+      description: "Ăn trưa ngày 1 cơm niêu & rau rừng",
+      amount: 630000,
+      representative: "Nguyễn Văn An",
+      category: "food",
+      note: "Nhà hàng Lá Cọ Ba Vì",
+      createdAt: "2026-11-20T12:30:00.000Z"
+    },
+    {
+      id: "exp_4",
+      groupId: "group_weekend_trip",
+      date: "2026-11-20",
+      title: "Nước suối & nước ngọt đóng chai",
+      description: "Nước suối & nước ngọt đóng chai",
+      amount: 150000,
+      representative: "Nguyễn Văn An",
+      category: "food",
+      note: "2 thùng nước suối + 1 lốc nước ngọt",
+      createdAt: "2026-11-20T14:00:00.000Z"
+    },
+    {
+      id: "exp_5",
+      groupId: "group_weekend_trip",
+      date: "2026-11-20",
+      title: "Thuê lều trại & bạt cắm trại qua đêm",
+      description: "Thuê lều trại & bạt cắm trại qua đêm",
+      amount: 360000,
+      representative: "Nguyễn Văn An",
+      category: "accommodation",
+      note: "3 lều lớn 4 người + 2 bạt trải",
+      createdAt: "2026-11-20T16:00:00.000Z"
+    },
+    {
+      id: "exp_6",
+      groupId: "group_weekend_trip",
+      date: "2026-11-20",
+      title: "Đồ nướng BBQ tối & than củi nướng",
+      description: "Đồ nướng BBQ tối & than củi nướng",
+      amount: 360000,
+      representative: "Nguyễn Văn An",
+      category: "food",
+      note: "Thịt xiên, gà nướng, than nướng",
+      createdAt: "2026-11-20T18:45:00.000Z"
+    },
+    {
+      id: "exp_7",
+      groupId: "group_weekend_trip",
+      date: "2026-11-21",
+      title: "Cà phê sáng & đồ ăn nhẹ ngày 2",
+      description: "Cà phê sáng & đồ ăn nhẹ ngày 2",
+      amount: 180000,
+      representative: "Nguyễn Văn An",
+      category: "food",
+      note: "Cà phê đồi thông & bánh mì trứng",
+      createdAt: "2026-11-21T07:30:00.000Z"
+    },
+    {
+      id: "exp_8",
+      groupId: "group_weekend_trip",
+      date: "2026-11-21",
+      title: "Ăn trưa ngày 2 phở gà đồi & trà đá",
+      description: "Ăn trưa ngày 2 phở gà đồi & trà đá",
+      amount: 90000,
+      representative: "Nguyễn Văn An",
+      category: "food",
+      note: "Quán phở ven đường trước khi về",
+      createdAt: "2026-11-21T12:00:00.000Z"
+    },
+    {
+      id: "exp_9",
+      groupId: "group_weekend_trip",
+      date: "2026-11-21",
+      title: "Vé qua cầu & gửi xe các điểm dừng",
+      description: "Vé qua cầu & gửi xe các điểm dừng",
+      amount: 30000,
+      representative: "Nguyễn Văn An",
+      category: "transport",
+      note: "Phí qua trạm BOT & bãi đỗ",
+      createdAt: "2026-11-21T15:30:00.000Z"
+    }
+  ],
+  settlements: []
+};
