@@ -10,7 +10,8 @@ import {
   FolderSync, 
   Clock,
   Download,
-  Database
+  Database,
+  Cloud
 } from 'lucide-react';
 import { formatDate } from '../../utils/date.js';
 import { exportService } from '../../services/exportService.js';
@@ -29,7 +30,7 @@ export default function GroupInfoBar({
   onTriggerPrint
 }) {
   const { showToast } = useToast();
-  const { exportJSONBackup } = useApp();
+  const { exportJSONBackup, roomCode, setIsRoomModalOpen } = useApp();
 
   const handleExportCSV = () => {
     try {
@@ -113,6 +114,16 @@ export default function GroupInfoBar({
           >
             <FolderSync className="w-3.5 h-3.5" />
             <span>Đổi chuyến</span>
+          </button>
+
+          <button
+            onClick={() => setIsRoomModalOpen(true)}
+            type="button"
+            className="flex-1 sm:flex-none inline-flex items-center justify-center gap-1.5 px-3 py-2 bg-emerald-50 hover:bg-emerald-100 active:bg-emerald-200 border border-emerald-200 text-emerald-800 text-xs font-bold rounded-xl shadow-xs min-h-[38px] transition-colors"
+            title="Xem mã chuyến đi đám mây và lấy link chia sẻ cho nhóm"
+          >
+            <Cloud className="w-3.5 h-3.5 text-emerald-600" />
+            <span>Đám mây ({roomCode})</span>
           </button>
 
           <button

@@ -9,7 +9,9 @@ import {
   Settings,
   ChevronRight,
   Wallet,
-  FolderGit2
+  FolderGit2,
+  Cloud,
+  Share2
 } from 'lucide-react';
 
 const NAV_ITEMS = [
@@ -22,7 +24,7 @@ const NAV_ITEMS = [
 ];
 
 export default function Sidebar() {
-  const { activeTab, setActiveTab, activeGroup, setIsGroupSwitcherOpen } = useApp();
+  const { activeTab, setActiveTab, activeGroup, setIsGroupSwitcherOpen, roomCode, setIsRoomModalOpen } = useApp();
 
   return (
     <aside className="hidden lg:flex flex-col w-64 bg-white border-r border-slate-200/80 min-h-screen shrink-0 sticky top-0 h-screen select-none">
@@ -40,7 +42,7 @@ export default function Sidebar() {
       </div>
 
       {/* Active Group Selector Card */}
-      <div className="p-4">
+      <div className="p-4 pb-2">
         <button
           type="button"
           onClick={() => setIsGroupSwitcherOpen(true)}
@@ -58,6 +60,32 @@ export default function Sidebar() {
             </div>
           </div>
           <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-slate-600 shrink-0 ml-1" />
+        </button>
+      </div>
+
+      {/* Cloud Sync Room Indicator Card */}
+      <div className="px-4 pb-3">
+        <button
+          type="button"
+          onClick={() => setIsRoomModalOpen(true)}
+          className="w-full flex items-center justify-between p-2.5 rounded-xl border border-emerald-200/90 bg-emerald-50/80 hover:bg-emerald-100/90 transition-all text-left shadow-2xs group"
+          title="Bấm để mở cài đặt đám mây và lấy link chia sẻ cho nhóm"
+        >
+          <div className="flex items-center gap-2.5 min-w-0">
+            <div className="w-7 h-7 rounded-lg bg-emerald-600 text-white flex items-center justify-center shrink-0">
+              <Cloud className="w-3.5 h-3.5" />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-1.5">
+                <span className="text-[10px] text-emerald-800 font-bold uppercase tracking-wider block">Lưu Đám Mây</span>
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping"></span>
+              </div>
+              <span className="text-xs font-mono font-extrabold text-emerald-950 truncate block">
+                {roomCode}
+              </span>
+            </div>
+          </div>
+          <Share2 className="w-3.5 h-3.5 text-emerald-700 group-hover:text-emerald-900 shrink-0 ml-1" />
         </button>
       </div>
 

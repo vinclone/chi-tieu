@@ -10,9 +10,10 @@ import SettlementPage from './pages/SettlementPage';
 import StatisticsPage from './pages/StatisticsPage';
 import SettingsPage from './pages/SettingsPage';
 import ExpenseFormModal from './components/expenses/ExpenseFormModal';
+import CloudRoomModal from './components/fund/CloudRoomModal';
 
 function AppContent() {
-  const { activeTab, currentMembers, activeGroup, addExpenseInline } = useApp();
+  const { activeTab, currentMembers, activeGroup, addExpenseInline, isRoomModalOpen, setIsRoomModalOpen } = useApp();
   const [isExpenseModalOpen, setIsExpenseModalOpen] = useState(false);
   const [isMemberModalOpen, setIsMemberModalOpen] = useState(false);
 
@@ -58,6 +59,12 @@ function AppContent() {
         onSave={(payload) => {
           addExpenseInline(payload);
         }}
+      />
+
+      {/* Cloud Room Modal for real-time Cloud Sharing */}
+      <CloudRoomModal
+        isOpen={isRoomModalOpen}
+        onClose={() => setIsRoomModalOpen(false)}
       />
     </AppLayout>
   );

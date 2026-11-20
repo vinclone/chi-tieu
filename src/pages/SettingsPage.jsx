@@ -13,8 +13,13 @@ import {
   Trash2,
   FileSpreadsheet,
   FolderGit2,
-  FileCode2
+  FileCode2,
+  Cloud,
+  Share2,
+  RefreshCw,
+  Copy
 } from 'lucide-react';
+import { cloudStorageService } from '../services/cloudStorageService';
 
 export default function SettingsPage() {
   const {
@@ -26,7 +31,11 @@ export default function SettingsPage() {
     updateGroup,
     resetToDemo,
     clearAllData,
-    reloadData
+    reloadData,
+    roomCode,
+    syncStatus,
+    setIsRoomModalOpen,
+    syncCloudNow
   } = useApp();
 
   const { showToast } = useToast();
@@ -214,6 +223,66 @@ export default function SettingsPage() {
 
         {/* Right Column: Backup, Restore & CSV Exports */}
         <div className="space-y-6">
+          {/* Cloud Database & Room Sharing Card */}
+          <div className="bg-gradient-to-br from-emerald-900 to-teal-950 text-white rounded-3xl p-6 shadow-md space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-emerald-800/80">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
+                  <Cloud className="w-5 h-5" />
+                </div>
+                <div>
+                  <h3 className="font-extrabold text-white text-sm">
+                    Lưu Trữ Đám Mây (Cloud Database)
+                  </h3>
+                  <p className="text-xs text-emerald-300/80">Lưu dữ liệu trực tuyến, dùng chung trên mọi điện thoại & PC</p>
+                </div>
+              </div>
+              <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                Đang kết nối
+              </span>
+            </div>
+
+            <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-4 border border-white/10 space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-xs text-emerald-200">Mã Chuyến Đi (Room Code):</span>
+                <span className="text-sm font-mono font-black text-amber-300 tracking-wider">
+                  {roomCode}
+                </span>
+              </div>
+              <p className="text-[11px] text-emerald-100/70">
+                * Mọi thành viên chỉ cần mở đường link theo mã này là xem và nhập dữ liệu chung, không lo mất khi đổi máy hay xóa trình duyệt.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+              <button
+                type="button"
+                onClick={() => setIsRoomModalOpen(true)}
+                className="flex items-center justify-center gap-2 p-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 active:bg-emerald-600 text-slate-950 font-bold text-xs transition-all shadow-sm"
+              >
+                <Share2 className="w-4 h-4" />
+                <span>Lấy link chia sẻ nhóm</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={async () => {
+                  try {
+                    await syncCloudNow();
+                    showToast('Đã cập nhật dữ liệu mới nhất từ máy chủ Đám mây!');
+                  } catch (e) {
+                    showToast('Lỗi đồng bộ đám mây: ' + e.message, 'error');
+                  }
+                }}
+                className="flex items-center justify-center gap-2 p-3 rounded-xl bg-white/15 hover:bg-white/20 active:bg-white/25 text-white font-bold text-xs transition-all border border-white/20"
+              >
+                <RefreshCw className="w-4 h-4" />
+                <span>Đồng bộ từ Đám mây</span>
+              </button>
+            </div>
+          </div>
+
           {/* JSON Backup & Restore Card */}
           <div className="bg-white rounded-3xl border border-slate-200/90 p-6 shadow-xs space-y-4">
             <div className="flex items-center gap-2.5 pb-2 border-b border-slate-100">

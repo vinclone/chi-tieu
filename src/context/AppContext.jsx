@@ -1,5 +1,6 @@
-import React, { createContext, useContext, useState, useEffect, useMemo, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { storageService } from '../services/storageService.js';
+import { cloudStorageService } from '../services/cloudStorageService.js';
 import { useToast } from './ToastContext.jsx';
 import { calculateFundSummary, calculateMemberRefunds } from '../utils/fundCalculations.js';
 
@@ -13,10 +14,137 @@ export function AppProvider({ children }) {
   const [allocationType, setAllocationType] = useState('equal');
   const [customAllocations, setCustomAllocations] = useState({});
 
-  // Auto-save to localStorage whenever data changes
+  // Cloud Sync state
+  const [roomCode, setRoomCode] = useState(() => cloudStorageService.getActiveRoomCode() || 'TRIP-CHUNG');
+  const [syncStatus, setSyncStatus] = useState('idle'); // 'idle' | 'syncing' | 'synced' | 'offline' | 'error'
+  const [lastSyncedAt, setLastSyncedAt] = useState(null);
+  const [isRoomModalOpen, setIsRoomModalOpen] = useState(false);
+  const isInitialCloudLoadedRef = useRef(false);
+
+  // Initialize and load from Cloud on mount
+  useEffect(() => {
+    let isMounted = true;
+    const initCloud = async () => {
+      const activeCode = cloudStorageService.getActiveRoomCode() || 'TRIP-CHUNG';
+      setRoomCode(activeCode);
+      try {
+        setSyncStatus('syncing');
+        const cloudData = await cloudStorageService.loadFromCloud(activeCode);
+        if (cloudData && isMounted) {
+          setData(cloudData);
+          setSyncStatus('synced');
+          setLastSyncedAt(new Date());
+          isInitialCloudLoadedRef.current = true;
+          showToast(`Đã đồng bộ dữ liệu đám mây (Phòng: ${activeCode})!`);
+        } else if (isMounted) {
+          // Room does not exist yet on cloud, publish current local state
+          await cloudStorageService.saveToCloud(activeCode, data);
+          setSyncStatus('synced');
+          setLastSyncedAt(new Date());
+          isInitialCloudLoadedRef.current = true;
+        }
+      } catch (err) {
+        if (isMounted) {
+          console.warn('Lỗi kết nối đám mây ban đầu:', err.message);
+          setSyncStatus('offline');
+          isInitialCloudLoadedRef.current = true;
+        }
+      }
+    };
+
+    initCloud();
+    return () => { isMounted = false; };
+  }, []);
+
+  // Auto-save to LocalStorage and Cloud whenever data changes
   useEffect(() => {
     storageService.saveData(data);
+
+    if (!roomCode || !isInitialCloudLoadedRef.current) return;
+    const timer = setTimeout(async () => {
+      try {
+        setSyncStatus('syncing');
+        await cloudStorageService.saveToCloud(roomCode, data);
+        setSyncStatus('synced');
+        setLastSyncedAt(new Date());
+      } catch (err) {
+        console.warn('Lỗi tự động lưu đám mây:', err.message);
+        setSyncStatus('offline');
+      }
+    }, 700);
+
+    return () => clearTimeout(timer);
+  }, [data, roomCode]);
+
+  // Background polling for remote changes from friends (every 20s)
+  useEffect(() => {
+    if (!roomCode) return;
+    const interval = setInterval(async () => {
+      try {
+        const remote = await cloudStorageService.loadFromCloud(roomCode);
+        if (remote && remote.updatedAt) {
+          setData(prev => {
+            if (!prev.updatedAt || new Date(remote.updatedAt) > new Date(prev.updatedAt)) {
+              return remote;
+            }
+            return prev;
+          });
+          setSyncStatus('synced');
+          setLastSyncedAt(new Date());
+        }
+      } catch {
+        // silent polling
+      }
+    }, 20000);
+
+    return () => clearInterval(interval);
+  }, [roomCode]);
+
+  // Change room code or join existing trip
+  const changeRoomCode = useCallback(async (newCode) => {
+    const cleanCode = cloudStorageService.normalizeRoomCode(newCode);
+    if (!cleanCode) return;
+    setRoomCode(cleanCode);
+    cloudStorageService.setLastRoomCode(cleanCode);
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.set('room', cleanCode);
+      window.history.replaceState(null, '', url.toString());
+    }
+    setSyncStatus('syncing');
+    try {
+      const cloudData = await cloudStorageService.loadFromCloud(cleanCode);
+      if (cloudData) {
+        setData(cloudData);
+      } else {
+        await cloudStorageService.saveToCloud(cleanCode, data);
+      }
+      setSyncStatus('synced');
+      setLastSyncedAt(new Date());
+    } catch (err) {
+      setSyncStatus('offline');
+      throw err;
+    }
   }, [data]);
+
+  // Manual trigger to pull latest cloud data
+  const syncCloudNow = useCallback(async () => {
+    if (!roomCode) return;
+    setSyncStatus('syncing');
+    try {
+      const cloudData = await cloudStorageService.loadFromCloud(roomCode);
+      if (cloudData) {
+        setData(cloudData);
+      } else {
+        await cloudStorageService.saveToCloud(roomCode, data);
+      }
+      setSyncStatus('synced');
+      setLastSyncedAt(new Date());
+    } catch (err) {
+      setSyncStatus('offline');
+      throw err;
+    }
+  }, [roomCode, data]);
 
   // Derived active group
   const activeGroup = useMemo(() => {
@@ -425,6 +553,15 @@ export function AppProvider({ children }) {
     addSettlement,
     updateSettlement,
     deleteSettlement,
+    // Cloud Sync
+    roomCode,
+    setRoomCode,
+    syncStatus,
+    lastSyncedAt,
+    isRoomModalOpen,
+    setIsRoomModalOpen,
+    changeRoomCode,
+    syncCloudNow,
     resetToDemo,
     clearAllData,
     reloadData
